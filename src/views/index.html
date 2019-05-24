@@ -1,0 +1,43 @@
+<html ng-app="myapp">
+<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+</head>
+
+<body>
+
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script>
+
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js"></script>
+	<!--script type="text/javascript" src="https://cdn3.devexpress.com/jslib/18.2.7/js/dx.all.js"></script-->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script>
+
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+
+	<script type="text/javascript" src="app.js"></script>
+
+
+	<div class="container" ng-controller="OpcuaController as opcua">
+		<h1>{{headline}}</h1>
+
+		<div class="alert alert-success">{{message}}</div>
+		<!--button class="btn" ng-click="opcua.get()">Get Nodes</button-->
+
+    	<div class="row">
+        	<div class="col-sm-6">
+		        <div id="tree"></div>
+		    </div>
+        	<div class="col-sm-6">
+        		<ul class="list-group">
+        			<li class="list-group-item" ng-repeat="node in nodes">{{node.text}}</li>
+        		</ul>
+				<pre>{{nodes | json}}</pre>
+		    </div>
+		</div>
+	</div>
+
+</body>
