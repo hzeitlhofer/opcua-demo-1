@@ -27,6 +27,12 @@
 		<div class="alert alert-success">{{message}}</div>
 		<!--button class="btn" ng-click="opcua.get()">Get Nodes</button-->
 
+		<table>
+			<tr ng-repeat="server in config">
+				<td><a href="#" ng-click="getNodes(0)">{{server.url}}</a></td>
+			</tr>
+		</table>
+
     	<div class="row">
         	<div class="col-sm-6">
 		        <div id="tree"></div>

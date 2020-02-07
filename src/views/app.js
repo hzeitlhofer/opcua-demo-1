@@ -3,9 +3,12 @@ let socket = io();
 angular.module('myapp', [])
 .factory('DataService', function ($http) {
     return {
-        getNodes: function() {
-            return $http.get('/nodes');
-        }
+        getConfig: function() {
+            return $http.get('/getconfig');
+        },
+        getNodes: function(id) {
+            return $http.get('/nodes/'+id);
+        }        
     }
 })
 .controller('OpcuaController', function($scope, DataService) {
@@ -17,13 +20,40 @@ angular.module('myapp', [])
 	$scope.headline = 'OPC UA Adapter';
     $scope.checkedItems = [];
 
-    this.get = () => {
-    	console.log();
+    $scope.getNodes = (id) => {
+    	console.log('get config for '+id);
+		DataService.getNodes(id).then(function(res) {
+			console.log(res.data);
+			$scope.allnodes = res.data;
+		    $("#tree").treeview({
+		    	data: res.data,
+		    	multiSelect: true,
+		    	showCheckbox: true,
+		    	showTags: true
+		    });
+		    $('#tree').on('nodeSelected', function(event, data) {
+	  			$scope.$apply(() => {
+	  				delete data.nodes ;
+	           		$scope.nodes.push(data);
+		    		console.log($scope.headline, $scope.nodes);
+		    	})
+			});
+		    $('#tree').on('nodeUnselected', function(event, data) {
+	  			$scope.$apply(() => {
+	  				delete data.nodes ;
+		           	$scope.nodes.splice($scope.nodes.indexOf(data),1);
+		    		console.log($scope.headline, $scope.nodes);
+		    	})
+			});
+		});	
     }
 
     $scope.$watch('nodes', () => {
     	console.log($scope.nodes);
-    	socket.emit('nodes', $scope.nodes);
+    	socket.emit('nodes', {
+    		id: 0,
+    		nodes: $scope.nodes
+    	});
     }, true);
 
     socket.on('message', (msg) => {
@@ -33,30 +63,17 @@ angular.module('myapp', [])
     	});
     });
 
-	DataService.getNodes().then(function(res) {
-		console.log(res.data);
-		$scope.allnodes = res.data;
-	    $("#tree").treeview({
-	    	data: res.data,
-	    	multiSelect: true,
-	    	showCheckbox: true,
-	    	showTags: true
-	    });
-	    $('#tree').on('nodeSelected', function(event, data) {
-  			$scope.$apply(() => {
-  				delete data.nodes ;
-           		$scope.nodes.push(data);
-	    		console.log($scope.headline, $scope.nodes);
-	    	})
-		});
-	    $('#tree').on('nodeUnselected', function(event, data) {
-  			$scope.$apply(() => {
-  				delete data.nodes ;
-	           	$scope.nodes.splice($scope.nodes.indexOf(data),1);
-	    		console.log($scope.headline, $scope.nodes);
-	    	})
-		});
-	});	
+    socket.on('data', (msg) => {
+    	$scope.$apply(() => {
+    		console.log(msg);
+    	});
+    });
+
+	DataService.getConfig().then(function(res) {
+		console.log('getConfig');
+		console.log(res);
+		$scope.config = res.data;
+	});
 
 })
 

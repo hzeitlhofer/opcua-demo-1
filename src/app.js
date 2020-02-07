@@ -4,11 +4,10 @@ const socketio = require('socket.io');
 const bodyParser = require("body-parser");
 const path = require('path');
 const config = require("../config");
-const opcua = require("./opcua");
+const Client = require("./opcua");
 const monitor = require("./monitor");
-
-
 const app = express();
+
 app.server = http.createServer(app);
 app.io = socketio(app.server);
 
@@ -22,17 +21,21 @@ app.use (bodyParser.urlencoded({extended: true}));
 
 app.use(express.static(path.join(__dirname, 'views')));
 
-app.get('/nodes', async (req, res) => {
-	res.send(opcua.getNodes());
+app.get('/getconfig', async (req, res) => {
+	res.send(config);
 });
 
-app.get('/get', async (req, res) => {
-	let v = await opcua.getValues();
+app.get('/nodes/:id', async (req, res) => {
+	res.send(clients[req.params.id].getNodes());
+});
+
+app.get('/get/:id', async (req, res) => {
+	let v = await clients[req.params.id].getValues();
 	res.send(v);
 })
 
-app.get('/all', async (req, res) => {
-	let v = await opcua.getSeries();
+app.get('/all/:id', async (req, res) => {
+	let v = await clients[req.params.id].getSeries();
 	res.send(v);
 })
 
@@ -40,7 +43,7 @@ app.io.on('connection', function(socket) {
 	console.log('client connection established');
 	socket.on('nodes', function(msg) {
 		console.log(msg);
-		opcua.setNodes(msg);
+		clients[msg.id].setNodes(msg.nodes);
 	})
 })
 
@@ -49,8 +52,13 @@ app.message = function(msg) {
 	app.io.emit('message', msg);
 }
 
-opcua.run();
-monitor.run(app);
+
+let clients = [];
+//for (i in config) {
+	clients.push(new Client(config[0]));
+//}
+
+monitor.run(app, clients);
 
 module.exports = app;
 

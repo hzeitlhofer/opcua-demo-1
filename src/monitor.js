@@ -1,17 +1,19 @@
-const opcua = require("./opcua");
-
-
-var Device = function(app, o) {
+var Device = function(app, clients) {
 
     try {
 
 	    var process = function() {
 	        
-			let topic = 'br/opcuatest/measure';
-	    	let data = opcua.getValues();
+	    	let data = clients[0].getSeries();
+			let topic = 'br/hmidemo/0';
 
-	    	if (data.data.length) {
-	        	console.log(topic, data);
+        	console.log(topic, data);
+
+	    	if (data && data.data && data.data.length) {
+        		app.io.emit('data', {
+        			topic: topic,
+        			payload: data
+        		});
 	        }
 
 	    }
@@ -32,12 +34,12 @@ var Device = function(app, o) {
 		console.log(e);
 		process.exit();
 	}
+
+	init();
 }
 
-const run = (app) => {
-	var dev = new Device(app, {
-	    name: 'opcua-test'
-	});
+const run = (app, clients) => {
+	var dev = new Device(app, clients);
 };
 
 module.exports = {
